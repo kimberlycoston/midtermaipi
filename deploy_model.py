@@ -5,36 +5,33 @@ import joblib  # Import joblib for saving and loading the trained model
 import numpy as np  # Import NumPy for numerical operations
 import time  # Import time module for measuring execution time
 import spidev  # Import SPI communication module for Raspberry Pi
-import matplotlib
-import seaborn as sns  # Import seaborn for aesthetic plots
+import matplotlib  # Import Matplotlib for plotting ECG signals
+import seaborn as sns  # Import Seaborn for enhanced visualization
 from scipy.signal import find_peaks # Import peak detection function for ECG signal analysis
-from scipy.interpolate import interp1d
-import RPi.GPIO as GPIO  # Import GPIO library
-import threading
+from scipy.interpolate import interp1d  # Import interpolation function for resizing ECG signals
+import RPi.GPIO as GPIO  # Import GPIO library for button
+import threading  # Import threading for parallel execution
 import simpleaudio as sa  # Ensure simpleaudio is installed: `pip install simpleaudio`
-import os
-import subprocess
-print("Current Working Directory:", os.getcwd())
+import os  # Import OS for handling system-related operations
+import subprocess  # Import subprocess for executing shell commands
 
+# Set environment variables for display on Raspberry Pi
 os.environ['DISPLAY'] = ':0'
 os.environ['XAUTHORITY'] = '/home/kimberlyaipi/.Xauthority'
 
-# Activate the virtual environment
-# Activate virtual environment
-venv_path = "/home/kimberlyaipi/midterm_ecg/venv/bin/activate"
-subprocess.call(f"source {venv_path} && python3 /home/kimberlyaipi/midterm_ecg/deploy_model.py", shell=True)
+# Activate the virtual environment before executing script
+#venv_path = "/home/kimberlyaipi/midterm_ecg/venv/bin/activate"
+#subprocess.call(f"source {venv_path} && python3 /home/kimberlyaipi/midterm_ecg/deploy_model.py", shell=True)
 
-matplotlib.use('TkAgg')  # Use a for GUI display 
+matplotlib.use('TkAgg')  # Configure Matplotlib to use TkAgg backend for GUI display
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation  # Import animation module for real-time plotting
 
 
 # Setup button
 BUTTON_PIN = 5  # Define the GPIO pin where the button is connected
-
-# Setup GPIO
-GPIO.setmode(GPIO.BCM)  # Use BCM numbering
-GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Set as input with pull-down resistor
+GPIO.setmode(GPIO.BCM)  # Use BCM numbering scheme for GPIO
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Set as input with pull-up resistor
 
 print("Press the button to start ECG monitoring...")
 while GPIO.input(BUTTON_PIN) == GPIO.HIGH:
@@ -42,22 +39,23 @@ while GPIO.input(BUTTON_PIN) == GPIO.HIGH:
 print("Button pressed! Starting ECG monitoring...")
 
 
-# Function to generate and play a beep sound
+# Function to generate and play a beep sound for arrhythmia detection
 def play_beep():
-    frequency = 1000  # Hz (adjust for desired pitch)
+    frequency = 1000  # Hz (pitch of the beep sound)
     duration = 0.1  # seconds
-    sample_rate = 44100  # Hz
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    wave = 0.5 * np.sin(2 * np.pi * frequency * t)
-    audio = (wave * 32767).astype(np.int16)
-    sa.play_buffer(audio, 1, 2, sample_rate)
+    sample_rate = 44100  # Hz (sampling rate for the sound)
+    t = np.linspace(0, duration, int(sample_rate * duration), False)  # Time axis
+    wave = 0.5 * np.sin(2 * np.pi * frequency * t)  # Generate sine wave signal
+    audio = (wave * 32767).astype(np.int16)  # Convert to 16-bit audio format
+    sa.play_buffer(audio, 1, 2, sample_rate)  # Play the generated sound
 
 
+# Function to resize ECG signal to match model input size
 def resize_ecg(ecg_signal, target_size=187):
-    x_old = np.linspace(0, len(ecg_signal) - 1, len(ecg_signal))
-    x_new = np.linspace(0, len(ecg_signal) - 1, target_size)
-    interpolator = interp1d(x_old, ecg_signal, kind='linear')
-    return interpolator(x_new)
+    x_old = np.linspace(0, len(ecg_signal) - 1, len(ecg_signal))  # Old sample points
+    x_new = np.linspace(0, len(ecg_signal) - 1, target_size)  # New sample points
+    interpolator = interp1d(x_old, ecg_signal, kind='linear')  # Linear interpolation
+    return interpolator(x_new)  # Return resized ECG signal
 
 sns.set_style("darkgrid")  # Set seaborn plot style to dark grid
 
@@ -69,7 +67,7 @@ class ECGClassifier(nn.Module):
         self.pool = nn.MaxPool1d(2)  # Max pooling layer
         self.conv2 = nn.Conv1d(32, 64, kernel_size=5)  # Second convolutional layer
 
-        # Dynamically calculate flattened size
+        # Compute dynamic size of the flattened feature map
         with torch.no_grad():
             dummy_input = torch.zeros(1, 1, 187)  # Create a dummy input to compute size
             x = self.pool(F.relu(self.conv1(dummy_input)))  # Apply first conv layer
@@ -84,7 +82,7 @@ class ECGClassifier(nn.Module):
         x = self.pool(F.relu(self.conv2(x)))  # Apply second conv + pooling
         x = x.view(x.size(0), -1)  # Flatten the feature maps
         x = F.relu(self.fc1(x))  # Fully connected layer with ReLU activation
-        return self.fc2(x)  # Output logits
+        return self.fc2(x)  # Return logits
 
 # Load saved model and set to evaluation mode
 model_loaded = joblib.load("/home/kimberlyaipi/midterm_ecg/ecg_optimized_model.joblib")
@@ -94,10 +92,7 @@ print("Optimized model loaded successfully on Raspberry Pi.")
 # SPI Configuration for MCP3008 (ADC for Raspberry Pi)
 spi = spidev.SpiDev()  # Initialize SPI device
 spi.open(0, 0)  # Open SPI bus
-spi.max_speed_hz = 1350000  # Set SPI speed
-
-# Read data from MCP3008
-
+spi.max_speed_hz = 1350000  # Set SPI communication speed
 
 # Function to detect exit button press
 def wait_for_exit():
@@ -110,9 +105,8 @@ def wait_for_exit():
     exit()  # Exit the script cleanly
 
 def read_channel(channel=0):
-    adc = spi.xfer2([1, (8 + channel) << 4, 0])  # Send read command to MCP3008
+    adc = spi.xfer2([1, (8 + channel) << 4, 0])  # Read ADC data /Send read command to MCP3008
     data = ((adc[1] & 3) << 8) + adc[2]  # Convert received bytes to integer
-
     normalized_data = data / 1023.0
     return normalized_data
 
