@@ -34,9 +34,14 @@ This project runs locally on a Raspberry Pi for low-cost, real-time processing.
 🔧 Hardware:
 ECG Sensor Module & Cable Lead Set (Model: AD8232)
 Raspberry Pi (Model: 4)
-LCD Display
+LCD Display - DSI Cable
+Button
+USB Speaker
 SPI Communication Module (Model: MCP3008)
 USB Cables, Power Supply (5V Battery Pack), and Breadboard
+
+![image](https://github.com/user-attachments/assets/c1943440-8afb-480d-b33a-58094940ffde)
+
 
 📦 Software:
 Python 3.7+
@@ -57,6 +62,8 @@ Step 3: Connect the ECG Sensor
 Connect ECG Leads (1 Right Chest, 1 Left Chest, 1 Left Lower Leg/Left Lower Abdomen)
 Ensure the ECG sensor is connected via SPI.
 Double-check the Raspberry Pi GPIO configuration.
+<img width="473" alt="image" src="https://github.com/user-attachments/assets/f937173b-8ea5-4168-bcfc-e3ee31e5b76a" />
+
 
 Step 4: Run the Model
 sh
@@ -72,6 +79,11 @@ Machine Learning Model classifies the heartbeat into 1 of 5 categories.
 ECG Sensor captures real-time heart signals.
 Output is displayed on an LCD screen.
 Audio beep alert as additional indicator of arrhythmia.
+<img width="444" alt="image" src="https://github.com/user-attachments/assets/0588df66-634a-432f-9195-93611d01b034" />
+<img width="372" alt="image" src="https://github.com/user-attachments/assets/22ea3340-6e4f-40ee-8328-35fe59388572" />
+
+
+
 
 📌 Flowchart of the System:
 ![image](https://github.com/user-attachments/assets/fe51d63c-fdf4-4657-998c-d1bf8c1ca1f7)
