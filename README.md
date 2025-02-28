@@ -1,5 +1,6 @@
 Real-Time ECG Prediction Model
-🚀 My first machine learning project - an ML powered ECG classification system running on a Raspberry Pi for real-time arrhythmia detection.
+
+My first machine learning project - an ML powered ECG classification system running on a Raspberry Pi for real-time arrhythmia detection.
 
 📌 Table of Contents
 Introduction
@@ -39,9 +40,7 @@ Button
 USB Speaker
 SPI Communication Module (Model: MCP3008)
 USB Cables, Power Supply (5V Battery Pack), and Breadboard
-
 ![image](https://github.com/user-attachments/assets/c1943440-8afb-480d-b33a-58094940ffde)
-
 
 📦 Software:
 Python 3.7+
@@ -58,18 +57,16 @@ cd midterm_ecg
 Step 2: Install Dependencies
 pip install -r requirements.txt
 
-Step 3: Connect the ECG Sensor
+Step 3: Connect the ECGs
 Connect ECG Leads (1 Right Chest, 1 Left Chest, 1 Left Lower Leg/Left Lower Abdomen)
-Ensure the ECG sensor is connected via SPI.
-Double-check the Raspberry Pi GPIO configuration.
+Ensure the ECG sensor is plugged into audio jack
 <img width="473" alt="image" src="https://github.com/user-attachments/assets/f937173b-8ea5-4168-bcfc-e3ee31e5b76a" />
 
-
 Step 4: Run the Model
-sh
-Copy
-Edit
-python run_model.py
+python train_model.py --> Output will be the ecg_full_model.joblib
+python optimize_model.py --> Output will be ecg_optimized_model.joblib
+python deploy_model.py on Raspberry Pi --> Push button --> You will see Real-Time ECG Arrhythmia Predictions :)
+
 
 📊 How It Works
 Dataset created with CNN
@@ -81,8 +78,6 @@ Output is displayed on an LCD screen.
 Audio beep alert as additional indicator of arrhythmia.
 <img width="444" alt="image" src="https://github.com/user-attachments/assets/0588df66-634a-432f-9195-93611d01b034" />
 <img width="372" alt="image" src="https://github.com/user-attachments/assets/22ea3340-6e4f-40ee-8328-35fe59388572" />
-
-
 
 
 📌 Flowchart of the System:
@@ -98,6 +93,9 @@ Training data was split into single-beat rows, which didn’t align well with re
 
 🔴 Individual Wave Detection Difficulties
 Finding waves dynamically in real-time was harder than using pre-labeled peaks in a dataset.
+
+🔴 Initializing Script on Raspberry Pi Start-Up
+The specific part of the LCD Display connected via DSI Ribbon was cumbersome to overcome. For my particicular LCD Display, I had to find the 'dtoverlay=vc4-kms-v3d' in the boot/config.txt fiile and change it to 'dtoverlay=vc4-fkms-v3d'
 
 🚀 Next Steps
 ✔️ Identify and parse all PQRST waves to pinpoint abnormalities
