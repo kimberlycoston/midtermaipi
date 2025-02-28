@@ -50,7 +50,7 @@ NumPy
 Pandas  
 SciPy  
 Matplotlib (for continuous/real-time ECG visualization)  
-MIT-BIH Arrhythmia Dataset for training data
+MIT-BIH Arrhythmia Dataset for training data (linked here: https://drive.google.com/file/d/19guOWvkFUluLMoeMfMPLvx3zQHZHXOJQ/view?usp=drive_link)
 
 ## ⚙️ Installation & Setup
 ### Step 1: Clone the Repository
