@@ -1,0 +1,10 @@
+venv/
+*.pyc
+*.log
+*.csv
+__pycache__/
+__pycache__/
+*.joblib
+*.csv
+*.zip
+*.ipynb
