@@ -112,7 +112,9 @@ def wait_for_exit():
 def read_channel(channel=0):
     adc = spi.xfer2([1, (8 + channel) << 4, 0])  # Send read command to MCP3008
     data = ((adc[1] & 3) << 8) + adc[2]  # Convert received bytes to integer
-    return data
+
+    normalized_data = data / 1023.0
+    return normalized_data
 
 # Mapping from numerical classes to arrhythmia names
 class_mapping = {
@@ -127,7 +129,7 @@ class_mapping = {
 plt.style.use('ggplot')  # Set plot style
 fig, ax = plt.subplots()
 x_len = 200  # Number of samples displayed in real-time
-ax.set_ylim([0, 1023])  # Set Y-axis range
+ax.set_ylim([0.1, 1.1])  # Set Y-axis range
 ax.set_xlim(0, x_len)  # Set X-axis range
 ecg_line, = ax.plot([], [], lw=2)  # ECG waveform line
 abnormal_points, = ax.plot([], [], 'ro', markersize=10)  # Abnormal beat markers
