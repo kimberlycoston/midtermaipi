@@ -139,10 +139,10 @@ def init():
     return ecg_line, abnormal_points, pred_text
 
 def upsample_ecg(ecg_signal, original_rate=50, target_rate=125):
-    x_old = np.linspace(0, len(ecg_signal) -1, len(ecg_signal))
-    x_new = np.linspace(0, len(ecg_signal) -1, int(len(ecg_signal) * (target_rate / original_rate)))
-    interpolator = interp1d(x_old, ecg_signal, kind='linear')
-    return interpolator(x_new)
+    x_old = np.linspace(0, len(ecg_signal) - 1, len(ecg_signal))  # Define original sample points
+    x_new = np.linspace(0, len(ecg_signal) - 1, int(len(ecg_signal) * (target_rate / original_rate)))  # Define target sample points
+    interpolator = interp1d(x_old, ecg_signal, kind='linear')  # Apply linear interpolation
+    return interpolator(x_new)  # Return upsampled signal
 
 def update(frame):
     global prediction_window, abnormal_indices
@@ -156,8 +156,8 @@ def update(frame):
     prediction_window.append(new_value)
 
 
-    if len(prediction_window) >= 75:  # We now have enough 50Hz samples
-        # 🚨 Instead of upsampling, we resize to match 187 samples
+    if len(prediction_window) >= 75:  # now have enough 50Hz samples
+        # Instead of upsampling, resize to match 187 samples
         ecg_window = np.array(prediction_window, dtype=np.float32)
         ecg_window = resize_ecg(ecg_window, 187)  # Resizes signal to model input size
 
