@@ -19,10 +19,6 @@ import subprocess  # Import subprocess for executing shell commands
 os.environ['DISPLAY'] = ':0'
 os.environ['XAUTHORITY'] = '/home/kimberlyaipi/.Xauthority'
 
-# Activate the virtual environment before executing script
-#venv_path = "/home/kimberlyaipi/midterm_ecg/venv/bin/activate"
-#subprocess.call(f"source {venv_path} && python3 /home/kimberlyaipi/midterm_ecg/deploy_model.py", shell=True)
-
 matplotlib.use('TkAgg')  # Configure Matplotlib to use TkAgg backend for GUI display
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation  # Import animation module for real-time plotting
